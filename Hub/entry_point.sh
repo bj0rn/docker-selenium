@@ -1,5 +1,18 @@
 #!/bin/bash
 
+export SEL_HOME=/opt/selenium
+
+# Setup nss_wrapper so the random user OpenShift will run this container
+# has an entry in /etc/passwd.
+# This is needed for 'git' and other tools to work properly.
+#
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
+envsubst < ${SEL_HOME}/passwd.template > ${SEL_HOME}/passwd
+export LD_PRELOAD=libnss_wrapper.so
+export NSS_WRAPPER_PASSWD=${SEL_HOME}/passwd
+export NSS_WRAPPER_GROUP=/etc/group
+
 ROOT=/opt/selenium
 CONF=$ROOT/config.json
 

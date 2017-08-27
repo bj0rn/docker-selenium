@@ -10,7 +10,7 @@ USER root
 #=========
 # Firefox
 #=========
-ARG FIREFOX_VERSION=54.0
+ARG FIREFOX_VERSION=55.0
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
@@ -25,7 +25,7 @@ RUN apt-get update -qqy \
 #============
 # GeckoDriver
 #============
-ARG GECKODRIVER_VERSION=0.17.0
+ARG GECKODRIVER_VERSION=0.18.0
 RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz \
   && rm -rf /opt/geckodriver \
   && tar -C /opt -zxf /tmp/geckodriver.tar.gz \
@@ -33,8 +33,6 @@ RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geck
   && mv /opt/geckodriver /opt/geckodriver-$GECKODRIVER_VERSION \
   && chmod 755 /opt/geckodriver-$GECKODRIVER_VERSION \
   && ln -fs /opt/geckodriver-$GECKODRIVER_VERSION /usr/bin/geckodriver
-
-USER seluser
 
 COPY generate_config /opt/bin/generate_config
 
@@ -45,3 +43,5 @@ RUN sudo echo ""
 
 # Generating config inside the image rather than with entry_point.sh
 RUN /opt/bin/generate_config > /opt/selenium/config.json
+
+USER 1001

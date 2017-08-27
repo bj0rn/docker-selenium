@@ -5,11 +5,12 @@
 FROM selenium/base:3.4.0-francium
 LABEL authors=SeleniumHQ
 
-USER seluser
+USER 1001
 
 #========================
 # Selenium Configuration
 #========================
+
 
 EXPOSE 4444
 
@@ -36,6 +37,7 @@ COPY generate_config \
 # Running this command as sudo just to avoid the message:
 # To run a command as administrator (user "root"), use "sudo <command>". See "man sudo_root" for details.
 # When logging into the container
-RUN /opt/bin/generate_config > /opt/selenium/config.json
+RUN /opt/bin/generate_config > /opt/selenium/config.json \
+    && chmod -R g+w /opt/selenium
 
 CMD ["/opt/bin/entry_point.sh"]

@@ -12,6 +12,8 @@ RUN  echo "deb http://archive.ubuntu.com/ubuntu xenial main universe\n" > /etc/a
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true
 
+ENV HOME /opt/selenium
+
 #========================
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
@@ -25,6 +27,8 @@ RUN apt-get -qqy update \
     sudo \
     unzip \
     wget \
+    libnss-wrapper \
+    gettext \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
@@ -39,23 +43,24 @@ RUN echo "${TZ}" > /etc/timezone \
 #========================================
 # Add normal user with passwordless sudo
 #========================================
-RUN useradd seluser \
-         --shell /bin/bash  \
-         --create-home \
-  && usermod -a -G sudo seluser \
-  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
-  && echo 'seluser:secret' | chpasswd
+#RUN useradd seluser \
+#         --shell /bin/bash  \
+#         --create-home \
+#  && usermod -a -G sudo seluser \
+#  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
+#  && echo 'seluser:secret' | chpasswd
 
-#===================================================
-# Run the following commands as non-privileged user
-#===================================================
-USER seluser
 
 #==========
 # Selenium
 #==========
-RUN  sudo mkdir -p /opt/selenium \
-  && sudo chown seluser:seluser /opt/selenium \
-  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.4/selenium-server-standalone-3.4.0.jar \
-    -O /opt/selenium/selenium-server-standalone.jar
+RUN  mkdir -p /opt/selenium
+COPY passwd.template \
+      /opt/selenium
+RUN  wget --no-verbose https://selenium-release.storage.googleapis.com/3.4/selenium-server-standalone-3.4.0.jar \
+    -O /opt/selenium/selenium-server-standalone.jar \
+    && chown -R 1001:0 /opt/selenium \
+    && chmod -R g+w /opt/selenium
 
+
+USER 1001
